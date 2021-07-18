@@ -1,0 +1,175 @@
+########################################################################################################################
+
+This document will outline all the functions available, what they do and the inputs they take arranged in no particular
+order atm.
+
+########################################################################################################################
+
+Intable: Takes a string or list as input and checks if it can be succesfully turned into and int by use of the built in
+int(variable) function. This is useful where you are taking user input to ensure the user does not input something which
+you will not be able to use mathematically because it contains a letter or character other than a number.
+You use it in the following manner:
+
+    leosLib.intable(ANY STRING)
+
+This will return True or false so you may use it from they're like the following example, remember to import leosLib at
+the top of your python document as well:
+
+    import leosLib
+
+    while(1 == 1):
+        usrInput = input("Enter a number or string ")
+        if(leosLib.intable(usrInput) == True):
+            print("The input can be turned into an int with int() without errors")
+        else:
+            print("The input cannot be turned into an int with int() without errors")
+
+########################################################################################################################
+
+PrintList: Takes a list as input and prints it out from the first value in the string to the last. It prints it to the
+python output as 1 item per line. This is useful if you want to list some options out to take an input for a python
+script. It also has an additional function where it prints a number to the left of each item, counting by the given
+interval from the first item to the last.
+You can use it in the following manner:
+
+    leosLib.printList(ANY LIST, TRUE OR FALSE, INTERVAL)
+
+The true or false asks whether or not to add the number to the left of each item, and interval is how much is counted up
+between each number, starting at the given interval number, not 0, and any list of course is just a list you input. The
+following shows an example of it being used:
+
+    import leosLib
+
+    list = ["orange", "apple", "grapes", "mango"]
+
+    print("Here is the first example showing what a plain print with PrintList looks like")
+    leosLib.printList(list, False, 0)
+
+    print("Here is a second example showing what it looks like to include the numbers to the left.")
+    leosLib.printList(list, True, 1) #Entering zero or anything less as the interval defaults to zero
+
+########################################################################################################################
+
+InvertList: Takes a list as input and goes from the back of the list moving the last items to the front of the list and
+the front items to the back inverting it. It only takes one input which is a list, or a string i guess but this may have
+unintended effects.
+You use it in the following manner
+
+    leosLib.invertList(ANY LIST)
+
+This will return a list which is an inverse of the list entered, below is an example of it being used
+
+    import leosLib
+
+    list = ["orange", "apple", "grapes", "mango"]
+
+    #Here we use the PrintList function to print the original list
+    print("Here is the original list")
+    leosLib.printList(list, False, 0)
+
+    print("") #And this print leaves a blank line
+
+    #Here we use Invertlist and make an inverted version of our list
+    newList = leosLib.invertList(list)
+
+    #Here we print the inverted list, once again making use of Print list
+    print("And here's the inverted version of that list")
+    leosLib.printList(newList, False, 0)
+
+########################################################################################################################
+
+ToString: Takes a list and string as input and adds every item in the list from the first to the last into a string with
+the string you input as a separator between each list item added together, you could also put a string as the first
+input but this may have unintended effects, you can also simply enter "" as the separator to not have anything between
+each list item.
+You use it in the following manner:
+
+    leosLib.toString(ANY LIST, ANY STRING AS SEPARATOR)
+
+This will return a string with all the list items separated by the entered separator, below is an example of it being
+used:
+
+    import leosLib
+
+    list = ["orange", "apple", "grapes", "mango"]
+
+    #Here we use the PrintList function to print the original list
+    print("Here is the original list")
+    leosLib.printList(list, False, 0)
+
+    print("") #And this print leaves a blank line
+
+    #Now we use ToString to take the list and turn it into a string with space as a separator
+    newString = leosLib.toString(list, " ")
+    print("Here is that same list in a single string with a space as the separator ")
+
+    #Then finally we print it out
+    print(newString)
+
+########################################################################################################################
+
+ToList: Takes a string and another string. The first string is split and put into items of a list, it is split where
+instances of the second given string, also known as separator, are found. The function goes from the left of the string
+to the right until it finds a separator when it then starts a new list item and continues on, the separator is NOT
+re-added into the final list items. The separator can be any string of any length, and if
+"" is entered as the separator it defaults to using spaces I.E. " ".
+You use it in the following manner
+
+    leosLib.toList(ANY STRING, ANY SINGLE CHARACTER)
+
+This will return the entered string now sliced into a list dictated by the given separator, below is an example of it in
+use:
+
+    import leosLib
+
+    #Here we create our string with separation between words with spaces for this example
+    string = "orange||apple||grapes||mango"
+    print("Here is our original string: " + string)
+
+    #Here we leave a blank line between our printing
+    print("")
+
+    #Here we give ToList our string and tell it to separate everything between spaces into separate list items
+    list = leosLib.toList(string, "||")
+    print("Now here is the list version of our string")
+    leosLib.printList(list, False, 0)
+
+########################################################################################################################
+
+WhiteListCompare: Takes a string, a list and another string. The first string will be compared to every item in the list
+and if it contains the pattern of the list item it will output True for that items index in the list the function
+returns, if not it returns false under that list item. The second string that is entered is additional flags, you do not
+need to provide the flags if you do not want them active, you enter them all combined one after another in a single
+string and they should be capitalized. These allow for additional functionality to be added in future updates without
+you needing to refactor code, here is a list of the currently supported flags:
+
+C : Use this to make the string comparison case sensitive because by default it is not
+
+You use WhiteListCompare in teh following manner:
+
+leosLib.whiteListCompare(STRING TO CHECK, WHITELIST TO CHECK AGAINST, ADDITIONAL FLAGS STRING)
+
+This will return a list with the same number of items as the whitelist given to it, each containing a boolean value of
+either True or False, True if the string contained the pattern the item at that index in the whitelist contained or
+False if not. Note that the string does not need to exactly match the item from teh whitelist, it only needs to contain
+the same string of characters somewhere in itself for a match to be flagged, there will likely be a stricter
+comparison flag added in the future.
+Below is an example of WhiteListCompare being used:
+
+    import leosLib
+
+    #Here we make our list we will compare the user input too
+    whiteList = ["orange", "apple", "grapes", "mango"]
+
+
+    #Next we make an infinite loop
+    while(1 == 1):
+        print("Enter a fruit drink to see if it matches a flavour in our database")
+        #Here we take the users input
+        usrIn = input("> ")
+
+        #Now we compare the users input to the list to see if any part of it matches the strings in the whitelist
+        results = leosLib.whiteListCompare(usrIn, whiteList, "")
+
+        #Now we use the print list function we've previously explained to print the list.
+        leosLib.printList(results, True, 1)
