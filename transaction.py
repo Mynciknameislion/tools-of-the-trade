@@ -4,8 +4,20 @@ import leosLib
 
 # Here is where all the necessary excel documents are opened
 transactionWorkbook = openpyxl.load_workbook("transaction-history.xlsx")
+balanceWorkbook = openpyxl.load_workbook("balance-and-inventory.xlsx")
 transactionSheet = transactionWorkbook.active
-current_cell = transactionSheet.cell(row = 100, column = 100)
+balanceSheet = balanceWorkbook.active
+
+currentCell = transactionSheet.cell(row = 100, column = 100)
+currentCellTwo = balanceSheet.cell(row=1, column=1)
+
+def fillCell(row, collum, string):
+    current_cell = transactionSheet.cell(row=row, column=collum)
+    current_cell.value = str(string)
+
+def fillCellTwo(row, collum, string):
+    current_cell = balanceSheet.cell(row=row, column=collum)
+    current_cell.value = str(string)
 
 def findFirstEmpty(checkedCollum):
     currentRow = 1
@@ -15,12 +27,21 @@ def findFirstEmpty(checkedCollum):
         current_cell = transactionSheet.cell(row = currentRow, column = checkedCollum)
     return currentRow
 
+def findFirstEmptyTwo(checkedCollum):
+    currentRow = 1
+    current_cell = balanceSheet.cell(row=1, column=checkedCollum)
+    while(current_cell.value != None):
+        currentRow += 1
+        current_cell = balanceSheet.cell(row = currentRow, column = checkedCollum)
+    return currentRow
+
 
 validIn = False
 usrIn = ""
 main_actions_list = ["Buy an item (add it to the stock database)",
                      "Sell an item (remove it from the stock database)",
-                     "Edit an entry of an item in the stock database (this is for if items are removed without being sold or if you entered a value wrong/need to edit TT or paid value of an entry"]
+                     "Edit an entry of an item in the stock database (this is for if items are removed without being sold or if you entered a value wrong/need to edit TT or paid value of an entry",
+                     "Add inventory (add inventory to your trading inventory, this is for of you got items from a non trading source and want the system to consider them)"]
 
 # Welcome message
 print("Welcome to your Entropia trade manager, from here you will be prompted to enter which action you wish for the program to do, hit enter to continue")
@@ -44,6 +65,7 @@ while(1 == 1):
 
     if(int(usrIn) == 1):
         targetRow = findFirstEmpty(3)
+        targetRowTwo = findFirstEmptyTwo(3)
         transactionId = findFirstEmpty(15)
         transactionId -= 1
 
@@ -60,40 +82,42 @@ while(1 == 1):
         print("Now please enter the total paid price of the item(s) purchased in ped, once again make sure its entered correctly")
         paidTotal = input("> ")
 
-        # This part writes to the sheet at the target row in the buy section
-        current_cell = transactionSheet.cell(row=targetRow, column=3)
-        current_cell.value = str(transactionId)
+        # This part writes to the transaction sheet at the target row in the buy section
+        fillCell(targetRow, 3, transactionId)
 
-        current_cell = transactionSheet.cell(row=targetRow, column=4)
-        current_cell.value = item
+        fillCell(targetRow, 4, item)
 
-        current_cell = transactionSheet.cell(row=targetRow, column=5)
-        current_cell.value = amount
+        fillCell(targetRow, 5, amount)
 
-        current_cell = transactionSheet.cell(row=targetRow, column=6)
-        current_cell.value = paidTotal
+        fillCell(targetRow, 6, paidTotal)
 
-        current_cell = transactionSheet.cell(row=targetRow, column=7)
-        current_cell.value = ttValue
+        fillCell(targetRow, 7, ttValue)
 
-        # This part writes to the sheet at the target row in the transaction history section
-        current_cell = transactionSheet.cell(row=transactionId + 1, column=15)
-        current_cell.value = str(transactionId)
+        # This part writes to the Inventory sheet at the inventory target
 
-        current_cell = transactionSheet.cell(row=transactionId + 1, column=16)
-        current_cell.value = item
+        fillCellTwo(targetRowTwo, 3, item)
 
-        current_cell = transactionSheet.cell(row=transactionId + 1, column=17)
-        current_cell.value = amount
+        fillCellTwo(targetRowTwo, 4, amount)
 
-        current_cell = transactionSheet.cell(row=transactionId + 1, column=18)
-        current_cell.value = paidTotal
+        fillCellTwo(targetRowTwo, 5, ttValue)
 
-        current_cell = transactionSheet.cell(row=transactionId + 1, column=19)
-        current_cell.value = ttValue
+        fillCellTwo(targetRowTwo, 6, paidTotal)
 
-        current_cell = transactionSheet.cell(row=transactionId + 1, column=20)
-        current_cell.value = "Buy"
+
+
+        # This part writes to the transaction sheet at the target row in the transaction history section
+
+        fillCell(transactionId + 1, 15, transactionId)
+
+        fillCell(transactionId + 1, 16, item)
+
+        fillCell(transactionId + 1, 17, amount)
+
+        fillCell(transactionId + 1, 18, paidTotal)
+
+        fillCell(transactionId + 1, 19, ttValue)
+
+        fillCell(transactionId + 1, 20, "Buy")
 
         transactionWorkbook.save("transaction-history.xlsx")
 
