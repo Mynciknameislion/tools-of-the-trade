@@ -4,9 +4,8 @@ import leosLib
 
 # Here is where all the necessary excel documents are opened
 transactionWorkbook = openpyxl.load_workbook("transaction-history.xlsx")
-balanceWorkbook = openpyxl.load_workbook("balance-and-inventory.xlsx")
-transactionSheet = transactionWorkbook.active
-balanceSheet = balanceWorkbook.active
+transactionSheet = transactionWorkbook["Transactions"]
+balanceSheet = transactionWorkbook["Inventory"]
 
 currentCell = transactionSheet.cell(row = 100, column = 100)
 currentCellTwo = balanceSheet.cell(row=1, column=1)
