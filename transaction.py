@@ -49,17 +49,20 @@ def findFirstEmptyTwo(checkedCollum):
 
 def reorganizeBalance():
     whitespaceLocale = findFirstEmptyTwo(3)
-    currentRow = whitespaceLocale + 1
-    while(readCellTwo(currentRow, 3) != None):
-       for x in range(3, 7):
-           tempString = readCellTwo(currentRow, x)
-           fillCellTwo(currentRow - 1, x, tempString)
-       currentRow += 1
+    if(readCellTwo(whitespaceLocale + 1, 3) != None):
+        currentRow = whitespaceLocale + 1
+        while(readCellTwo(currentRow, 3) != None):
+           for x in range(3, 7):
+               tempString = readCellTwo(currentRow, x)
+               fillCellTwo(currentRow - 1, x, tempString)
+           currentRow += 1
 
-    whitespaceLocale = findFirstEmptyTwo(3)
-    whitespaceLocale -= 1
-    for x in range(3, 7):
-        fillCellTwo(whitespaceLocale, x, None)
+        whitespaceLocale = findFirstEmptyTwo(3)
+        whitespaceLocale -= 1
+        for x in range(3, 7):
+            fillCellTwo(whitespaceLocale, x, None)
+    else:
+        pass
 
 
 
@@ -68,7 +71,7 @@ usrIn = ""
 main_actions_list = ["Buy an item (add it to the stock database)",
                      "Sell an item (remove it from the stock database)",
                      "Edit an entry of an item in the stock database (this is for if items are removed without being sold or if you entered a value wrong/need to edit TT or paid value of an entry",
-                     "Add inventory (add inventory to your trading inventory, this is for of you got items from a non trading source and want the system to consider them)"]
+                     "Add inventory (add an item to your trading inventory, this is for of you got items from a non trading source and want the system to consider them)"]
 
 # Welcome message
 print("Welcome to your Entropia trade manager, from here you will be prompted to enter which action you wish for the program to do, hit enter to continue")
@@ -90,7 +93,7 @@ while(1 == 1):
         else:
             print("That input was not a number")
 
-    if(float(usrIn) == 1):
+    if(int(usrIn) == 1):
         targetRow = findFirstEmpty(3)
         targetRowTwo = findFirstEmptyTwo(3)
         transactionId = findFirstEmpty(15)
@@ -99,14 +102,21 @@ while(1 == 1):
         print("You have selected the buy an item option, this requires you to first enter the name of the item")
         item = input("> ")
 
-        print("Now please enter the amount of the item you purchased, make sure you enter it correctly, you will not be repromted")
-        amount = input("> ")
+        print("Now please enter the amount of the item you purchased, this must be a whole number")
+        amount = 0
+        while(amount == 0):
+            amount = input("> ")
+            if(leosLib.intable(amount) == False):
+                amount = 0
+                print("The entered value was not valid")
+            elif(int(amount) < 1):
+                print("The entered value was not valid")
 
-        print("Now please enter the total TT value of the item(s) purchased, once again make sure its entered correctly")
-        print("If the tt value is very low, like for blazars for example, just enter 0 for the tt value if its less than a pec")
+        print("Now please enter the total TT value of the item(s) purchased, this does not need to be a whole number")
+        print("If the tt value is less than 0.01 ped, simply enter 0 or 0.01")
         ttValue = input("> ")
 
-        print("Now please enter the total paid price of the item(s) purchased in ped, once again make sure its entered correctly")
+        print("Now please enter the total paid price of the item(s) purchased in ped, this also does not need to be a whole number")
         paidTotal = input("> ")
 
         # This part writes to the transaction sheet at the target row in the buy section
@@ -148,12 +158,8 @@ while(1 == 1):
 
         transactionWorkbook.save("transaction-history.xlsx")
 
-        print("Your purchase of " + item + " has been added to the transaction log, here is the transaction summary:")
-        print("Transaction ID: " + str(transactionId))
-        print("Item: \t" + item)
-        print("Amount: \t" + amount)
-        print("TT value: \t" + ttValue + " Ped")
-        print("Ped paid: \t" + paidTotal + " Ped")
+        print("Transaction successfully documented")
+
 
     elif(int(usrIn) == 2):
         inventoryItemList = []
@@ -185,15 +191,14 @@ while(1 == 1):
             tempString = "| Item: " + inventoryItemList[x] + "; Amount: " + inventoryItemAmount[x] + ";"
             combinedList.append(tempString)
 
-        print("You have selected the sell option, next you will be showed a summary list of items in the inventory, hit enter to continue")
-        input()
+        print("You have selected the sell option, next you will be showed a summary list of items in the inventory")
 
         chosenItem = 0
         sellAmount = 0
         sellPed = 0
         loop = True
         while(loop == True):
-            print("To select an item type to see aditional information on it and to continue the transaction enter the number to its left")
+            print("To select an item type to see aditional information on it and continue the transaction enter the number to its left")
             leosLib.printList(combinedList, True, 1)
             usrIn = ""
 
@@ -274,14 +279,10 @@ while(1 == 1):
         paidValueLeftOver *= float(sellAmount)
         paidValueLeftOver = float(inventoryItemPaidPed[chosenItem]) - paidValueLeftOver
 
-        print("Thank you, please wait while the entry is added to the spreadsheet")
-
         targetRow = findFirstEmpty(3)
         targetRowTwo = findFirstEmptyTwo(3)
         transactionId = findFirstEmpty(15)
         transactionId -= 1
-
-        print("Filling out transaction sheet (1/2)")
 
         # This part writes to the transaction sheet at the target row in the sell section
         fillCell(targetRow, 9, transactionId)
@@ -290,14 +291,10 @@ while(1 == 1):
 
         fillCell(targetRow, 11, sellAmount)
 
-        fillCell(targetRow, 12, round(sellPed), 2)
+        fillCell(targetRow, 12, round(sellPed, 2))
 
-        fillCell(targetRow, 13, round(ttSoldValue), 2)
+        fillCell(targetRow, 13, round(ttSoldValue, 2))
 
-        print("Filled out transaction sheet (1/2)")
-
-
-        print("Filling out Inventory sheet (1/1)")
         # This part writes to the Inventory sheet at the item being sold
 
         if(int(inventoryItemAmount[chosenItem]) - sellAmount > 0):
@@ -309,7 +306,6 @@ while(1 == 1):
 
             fillCellTwo(chosenItem + 2, 6, round(paidValueLeftOver, 2))
 
-            print("Filled out Inventory sheet (1/1)")
 
         else:
             fillCellTwo(chosenItem + 2, 3, None)
@@ -320,11 +316,8 @@ while(1 == 1):
 
             fillCellTwo(chosenItem + 2, 6, None)
 
-            print("Filled out Inventory sheet (1/1)")
-
-            print("Reorganizing Inventory sheet (1/1)")
             reorganizeBalance()
-            print("Reorganized Inventory sheet (1/1)")
+
 
 
 
@@ -346,8 +339,166 @@ while(1 == 1):
 
         transactionWorkbook.save("transaction-history.xlsx")
 
-        print("Filled out transaction sheet (2/2)")
+        print("Transaction successfully documented")
 
-        print("Transaction succesfully documented")
+
+    elif(int(usrIn) == 3):
+
+        inventoryItemList = []
+        inventoryItemAmount = []
+        inventoryItemValue = []
+        inventoryItemPaidPed = []
+        combinedList = []
+        tempString = ""
+        rowTotal = findFirstEmptyTwo(3)
+        recalculate = True
+        loop = True
+        while (loop == True):
+            while(recalculate == True):
+                # This reads all the item names in the inventory sheet and adds them to a list
+                for x in range(2, rowTotal):
+                    inventoryItemList.append(readCellTwo(x, 3))
+
+                # This reads all the amounts in the inventory sheet and adds them to a list
+                for x in range(2, rowTotal):
+                    inventoryItemAmount.append(readCellTwo(x, 4))
+
+                #This reads all the TT values of the items and adds them to a list
+                for x in range(2, rowTotal):
+                    inventoryItemValue.append(readCellTwo(x, 5))
+
+                #This reads all the paid amounts of the items and adds them to a list
+                for x in range(2, rowTotal):
+                    inventoryItemPaidPed.append(readCellTwo(x, 6))
+
+                #This takes some of the item info and combines it into a list to be printed to the user
+                for x in range(len(inventoryItemList)):
+                    tempString = "| Item: " + inventoryItemList[x] + ";"
+                    combinedList.append(tempString)
+                recalculate = False
+
+
+            print("You have selected the edit an entry option, you will now be prompted with a list of inventory entrys, select your desired one by entering the number to its left, note editing an entry WILL NOT change the buy transaction it was linked too")
+            sellAmount = 0
+            sellPed = 0
+
+            editLoop = True
+            selectedItem = 0
+            selectedEdit = 0
+
+            leosLib.printList(combinedList, True, 1)
+            usrIn = ""
+
+            while(usrIn == ""):
+                usrIn = input("> ")
+                if(leosLib.intable(usrIn) == True):
+                    usrIn = int(usrIn)
+                    if(usrIn > len(inventoryItemList) or usrIn < 0):
+                        usrIn = ""
+                        print("That selection was an invalid range")
+                else:
+                    print("That selection was invalid")
+                    usrIn = ""
+
+                selectedItem = int(usrIn)
+                usrIn = ""
+                combinedListTwo = []
+                combinedListTwo.append(inventoryItemList[selectedItem - 1])
+                combinedListTwo.append(inventoryItemAmount[selectedItem - 1])
+                combinedListTwo.append(inventoryItemValue[selectedItem - 1])
+                combinedListTwo.append(inventoryItemPaidPed[selectedItem - 1])
+
+                editList = ["Item name", "Item amount", "Total TT value", "Total paid ped"]
+                while(editLoop == True):
+                    print("You selected the entry for " + combinedListTwo[0] + ". Here are the edit options for that entry:")
+                    print("1| Item name: " + combinedListTwo[0])
+                    print("2| Item amount: " + combinedListTwo[1])
+                    print("3| Total TT Value: " + combinedListTwo[2])
+                    print("4| Total paid ped: " + combinedListTwo[3])
+                    print("5| Delete entry")
+                    print("6| Quit entry editor")
+                    print("To select an option to edit enter the number to its left")
+                    while(usrIn == ""):
+                        usrIn = input("> ")
+                        if(leosLib.intable(usrIn) != True):
+                            usrIn = ""
+                            print("The entered value was not valid")
+                        elif(int(usrIn) > 6 or int(usrIn) < 1):
+                            print("The entered value was outside of the supported range")
+                            usrIn = ""
+                    selectedEdit = int(usrIn)
+                    usrIn = ""
+                    if(selectedEdit == 6):
+                        recalculate = True
+                        editLoop = False
+                    elif(selectedEdit != 5):
+                        print("You have selected to edit the entrys " + editList[selectedEdit - 1])
+                        print("The current value is " + combinedListTwo[selectedEdit - 1])
+                        print("Enter the new value and hit enter to store it")
+                        usrIn = input("> ")
+                        combinedListTwo[selectedEdit - 1] = usrIn
+                        fillCellTwo(selectedItem + 1, selectedEdit + 2, combinedListTwo[selectedEdit - 1])
+                        transactionWorkbook.save("transaction-history.xlsx")
+                        print("Change documented")
+                        usrIn = ""
+                        recalculate = True
+                    else:
+                        print("Are you sure you wish to delete this entry, if so hit enter otherwise enter any value to go back")
+                        usrIn = input("> ")
+                        if(usrIn == ""):
+                            fillCellTwo(selectedItem + 1, 3, None)
+
+                            fillCellTwo(selectedItem + 1, 4, None)
+
+                            fillCellTwo(selectedItem + 1, 5, None)
+
+                            fillCellTwo(selectedItem + 1, 6, None)
+
+                            reorganizeBalance()
+
+                            transactionWorkbook.save("transaction-history.xlsx")
+                            print("Change documented")
+                            recalculate = True
+                            editLoop = False
+                        else:
+                            pass
+                break
+    elif(int(usrIn) == 4):
+        itemName = ""
+        itemAmount = 0
+        itemTT = 0.0
+        print("You have selected the add inventory option")
+        print("Please enter the name of the item you wish to add to the inventory")
+        while(usrIn == ""):
+            if(usrIn == " "):
+                print("That was not a valid name")
+            else:
+                itemName = usrIn
+        print("Now please enter the amount of the item you want to document")
+        while(usrIn == ""):
+            if(leosLib.intable(usrIn) == False):
+                usrIn = ""
+                print("The entered input was invalid")
+        itemAmount = int(usrIn)
+        print("Now finally enter the TT value of the item, if the tt value is less than 0.01 ped enter 0. The item TT will also be written to the paid price collum for simplicity sake")
+        while (usrIn == ""):
+            if (usrIn == " "):
+                print("That was not a valid number")
+            else:
+                itemTT = float(usrIn)
+
+        targetRowTwo = findFirstEmptyTwo(3)
+
+        fillCellTwo(targetRowTwo, 3, itemName)
+
+        fillCellTwo(targetRowTwo, 4, itemAmount)
+
+        fillCellTwo(targetRowTwo, 5, itemTT)
+
+        fillCellTwo(targetRowTwo, 6, itemTT)
+
+        transactionWorkbook.save("transaction-history.xlsx")
+
+        print("Transaction successfully documented")
 
     break
