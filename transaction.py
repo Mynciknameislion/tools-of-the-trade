@@ -279,7 +279,7 @@ while(1 == 1):
         paidValueLeftOver *= float(sellAmount)
         paidValueLeftOver = float(inventoryItemPaidPed[chosenItem]) - paidValueLeftOver
 
-        targetRow = findFirstEmpty(3)
+        targetRow = findFirstEmpty(9)
         targetRowTwo = findFirstEmptyTwo(3)
         transactionId = findFirstEmpty(15)
         transactionId -= 1
@@ -323,8 +323,6 @@ while(1 == 1):
 
         # This part writes to the transaction sheet at the target row in the transaction history section
 
-        print("Filling out transaction sheet (2/2)")
-
         fillCell(transactionId + 1, 15, transactionId)
 
         fillCell(transactionId + 1, 16, inventoryItemList[chosenItem])
@@ -355,6 +353,13 @@ while(1 == 1):
         loop = True
         while (loop == True):
             while(recalculate == True):
+                rowTotal = findFirstEmptyTwo(3)
+                inventoryItemList = []
+                inventoryItemAmount = []
+                inventoryItemValue = []
+                inventoryItemPaidPed = []
+                combinedList = []
+
                 # This reads all the item names in the inventory sheet and adds them to a list
                 for x in range(2, rowTotal):
                     inventoryItemList.append(readCellTwo(x, 3))
@@ -378,7 +383,7 @@ while(1 == 1):
                 recalculate = False
 
 
-            print("You have selected the edit an entry option, you will now be prompted with a list of inventory entrys, select your desired one by entering the number to its left, note editing an entry WILL NOT change the buy transaction it was linked too")
+            print("You have selected the edit an entry option, you will now be prompted with a list of inventory entrys, select your desired one by entering the number to its left, note editing an entry WILL NOT change the buy transaction it was linked too, enter e to exit")
             sellAmount = 0
             sellPed = 0
 
@@ -396,6 +401,9 @@ while(1 == 1):
                     if(usrIn > len(inventoryItemList) or usrIn < 0):
                         usrIn = ""
                         print("That selection was an invalid range")
+                elif(usrIn.lower() == "e"):
+                    loop = False
+                    break
                 else:
                     print("That selection was invalid")
                     usrIn = ""
@@ -464,24 +472,30 @@ while(1 == 1):
                             pass
                 break
     elif(int(usrIn) == 4):
+        usrIn = ""
         itemName = ""
         itemAmount = 0
         itemTT = 0.0
         print("You have selected the add inventory option")
         print("Please enter the name of the item you wish to add to the inventory")
         while(usrIn == ""):
+            usrIn = input("> ")
             if(usrIn == " "):
                 print("That was not a valid name")
             else:
                 itemName = usrIn
+        usrIn = ""
         print("Now please enter the amount of the item you want to document")
         while(usrIn == ""):
+            usrIn = input("> ")
             if(leosLib.intable(usrIn) == False):
                 usrIn = ""
                 print("The entered input was invalid")
         itemAmount = int(usrIn)
+        usrIn = ""
         print("Now finally enter the TT value of the item, if the tt value is less than 0.01 ped enter 0. The item TT will also be written to the paid price collum for simplicity sake")
         while (usrIn == ""):
+            usrIn = input("> ")
             if (usrIn == " "):
                 print("That was not a valid number")
             else:
@@ -496,6 +510,21 @@ while(1 == 1):
         fillCellTwo(targetRowTwo, 5, itemTT)
 
         fillCellTwo(targetRowTwo, 6, itemTT)
+
+        transactionId = findFirstEmpty(15) - 1
+
+        fillCell(transactionId + 1, 15, transactionId)
+
+        fillCell(transactionId + 1, 16, itemName)
+
+        fillCell(transactionId + 1, 17, itemAmount)
+
+        fillCell(transactionId + 1, 18, round(itemTT, 2))
+
+        fillCell(transactionId + 1, 19, round(itemTT, 2))
+
+        fillCell(transactionId + 1, 20, "Add Inventory")
+
 
         transactionWorkbook.save("transaction-history.xlsx")
 
